@@ -1,0 +1,5 @@
+# This file assigns code ownership to specific users or teams
+# Format: `file_pattern @github_username_or_team`
+
+# Default owner for all files
+* @Thriwerohit

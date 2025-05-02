@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -17,7 +18,7 @@ type repo struct {
 }
 
 func New(path string) (web.JobRepository, error) {
-	db, err := initDatabase("postgresql://postgres:Z5Cq26NnxmUXGL3kAhcf4wPVSv9Q@127.0.0.1/discovery")
+	db, err := initDatabase(path)
 	if err != nil {
 		return nil, err
 	}
@@ -194,6 +195,7 @@ func initDatabase(path string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Println("Connected to PostgreSQL!")
 
 	return db, createSchema(db)
 }

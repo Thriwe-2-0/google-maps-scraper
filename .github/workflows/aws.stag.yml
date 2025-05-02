@@ -1,0 +1,89 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - "staging"
+
+env:
+  AWS_REGION: "ap-south-1"
+  ECR_REPOSITORY: "discovery-service"
+  ECS_SERVICE: "stag-discovery-service"
+  ECS_CLUSTER: "stag-ecs-cluster"
+  ECS_TASK_DEFINITION: ".aws/stag-task-definition.json"
+  CONTAINER_NAME: "stag-discovery-service"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.STAG_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.STAG_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Download .env file from S3
+        run: |
+          aws s3 cp s3://stag-api-gateway/discovery-service/discovery-service.yaml config/config.yaml
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Get the commit hash
+        id: get-commit-hash
+        run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: "latest"
+        run: |
+          echo "${{ secrets.REPO_ACCESS_TOKEN }}" > repo_token.txt
+          DOCKER_BUILDKIT=1 docker build \
+            --secret id=repo_token,src=repo_token.txt \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          rm -f repo_token.txt  # Clean up secret file
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+  
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+  
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+  
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: 'good'
+          SLACK_ICON: https://slack.com/blog/news/10-apps-for-slack-that-just-keep-getting-better
+          SLACK_MESSAGE: "discovery-service: staging branch successfully deployed"
+          SLACK_TITLE: "Deployment status" 
+          SLACK_USERNAME: "Github"

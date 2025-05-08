@@ -33,8 +33,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.STAG_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           
-      - name: Download config from S3
-        run: aws s3 cp s3://stag-api-gateway/scraper-service/scraper-service.yaml config.yaml
+      
         
         
       - name: Set up Docker Buildx

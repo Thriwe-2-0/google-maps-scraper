@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gosom/google-maps-scraper/config"
 	"github.com/gosom/google-maps-scraper/runner"
 	"github.com/gosom/google-maps-scraper/runner/databaserunner"
 	"github.com/gosom/google-maps-scraper/runner/filerunner"
@@ -64,7 +63,7 @@ func main() {
 	cfg := runner.ParseConfig()
 	// cfg.KafkaConfig = kafkaConfig
 	// cfg.KafkaClient = kafkaClient
-	cfg.Databases = databases
+	cfg.Databases.Discovery.URI = "postgresql://postgres:Z5Cq26NnxmUXGL3kAhcf4wPVSv9Q@localhost:5432/discovery"
 	cfg.MongoClient = mongoClient
 
 	runnerInstance, err := runnerFactory(cfg)
@@ -116,7 +115,7 @@ func runnerFactory(cfg *runner.Config) (runner.Runner, error) {
 }
 
 func init() {
-	Cfg := config.Init()
+	//Cfg := config.Init()
 
 	// kafkaConfig = runner.KafkaConfig{
 	// 	Topics:                Cfg.KafkaConfig.Topics,
@@ -127,9 +126,9 @@ func init() {
 	// 	SASLUser:              Cfg.KafkaConfig.SASLUser,
 	// 	SASLPassword:          Cfg.KafkaConfig.SASLPassword,
 	// }
-	databases = Cfg.Databases
+	//databases = Cfg.Databases
 
-	db, err := NewMongoClient(Cfg.Databases.Auth.URI, Cfg.Databases.Auth.DatabaseName)
+	db, err := NewMongoClient("mongodb://rashmi_read:hq0PySpkeQ8uz6uF@ac-ez0yja2-shard-00-00.6x4exst.mongodb.net:27017,ac-ez0yja2-shard-00-01.6x4exst.mongodb.net:27017,ac-ez0yja2-shard-00-02.6x4exst.mongodb.net:27017/?replicaSet=atlas-11b9tc-shard-0&ssl=true&authSource=admin","staging-auth")
 	if err != nil {
 		log.Panic("Failed to connect to MongoDB:", err)
 	}

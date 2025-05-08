@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM golang:1.24.2-bullseye AS builder
 WORKDIR /app
 COPY go.mod go.sum ./
+COPY ./config/ ./config/
 RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /usr/bin/google-maps-scraper
@@ -53,7 +54,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=playwright-deps /opt/browsers /opt/browsers
 COPY --from=playwright-deps /root/.cache/ms-playwright-go /opt/ms-playwright-go
-COPY ./config/ ./config/
 
 RUN chmod -R 755 /opt/browsers \
     && chmod -R 755 /opt/ms-playwright-go

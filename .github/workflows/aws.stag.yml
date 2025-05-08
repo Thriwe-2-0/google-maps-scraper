@@ -35,6 +35,7 @@ jobs:
           
       - name: Download .env file from S3
         run: |
+          mkdir -p config
           aws s3 cp s3://stag-api-gateway/scraper-service/scraper-service.yaml config/config.yaml
         
       - name: Set up Docker Buildx

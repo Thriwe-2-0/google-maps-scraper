@@ -15,7 +15,7 @@ func Init() *runner.Config {
 	once.Do(func() {
 		viper.SetConfigName("config")
 		viper.SetConfigType("yaml")
-		viper.AddConfigPath("config/")
+		viper.AddConfigPath("/config/")
 		viper.AutomaticEnv()
 
 		if err := viper.ReadInConfig(); err != nil {

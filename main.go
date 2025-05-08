@@ -53,17 +53,17 @@ func main() {
 	)
 	defer logger.Sync()
 
-	sugar := logger.Sugar()
+	//sugar := logger.Sugar()
 
-	kafkaClient, err := runner.NewKafkaClient(kafkaConfig, sugar)
-	if err != nil {
-		cancel()
-		sugar.Errorw("Failed to create Kafka client", "error", err)
-		os.Exit(1)
-	}
+	// kafkaClient, err := runner.NewKafkaClient(kafkaConfig, sugar)
+	// if err != nil {
+	// 	cancel()
+	// 	sugar.Errorw("Failed to create Kafka client", "error", err)
+	// 	os.Exit(1)
+	// }
 	cfg := runner.ParseConfig()
-	cfg.KafkaConfig = kafkaConfig
-	cfg.KafkaClient = kafkaClient
+	// cfg.KafkaConfig = kafkaConfig
+	// cfg.KafkaClient = kafkaClient
 	cfg.Databases = databases
 	cfg.MongoClient = mongoClient
 
@@ -118,15 +118,15 @@ func runnerFactory(cfg *runner.Config) (runner.Runner, error) {
 func init() {
 	Cfg := config.Init()
 
-	kafkaConfig = runner.KafkaConfig{
-		Topics:                Cfg.KafkaConfig.Topics,
-		Brokers:               Cfg.KafkaConfig.Brokers,
-		Subjects:              Cfg.KafkaConfig.Subjects,
-		SchemaRegistryUrl:     Cfg.KafkaConfig.SchemaRegistryUrl,
-		SchemaRegistrySubject: Cfg.KafkaConfig.SchemaRegistrySubject,
-		SASLUser:              Cfg.KafkaConfig.SASLUser,
-		SASLPassword:          Cfg.KafkaConfig.SASLPassword,
-	}
+	// kafkaConfig = runner.KafkaConfig{
+	// 	Topics:                Cfg.KafkaConfig.Topics,
+	// 	Brokers:               Cfg.KafkaConfig.Brokers,
+	// 	Subjects:              Cfg.KafkaConfig.Subjects,
+	// 	SchemaRegistryUrl:     Cfg.KafkaConfig.SchemaRegistryUrl,
+	// 	SchemaRegistrySubject: Cfg.KafkaConfig.SchemaRegistrySubject,
+	// 	SASLUser:              Cfg.KafkaConfig.SASLUser,
+	// 	SASLPassword:          Cfg.KafkaConfig.SASLPassword,
+	// }
 	databases = Cfg.Databases
 
 	db, err := NewMongoClient(Cfg.Databases.Auth.URI, Cfg.Databases.Auth.DatabaseName)

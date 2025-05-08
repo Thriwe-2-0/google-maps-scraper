@@ -53,6 +53,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=playwright-deps /opt/browsers /opt/browsers
 COPY --from=playwright-deps /root/.cache/ms-playwright-go /opt/ms-playwright-go
+COPY ./config/ ./config/
 
 RUN chmod -R 755 /opt/browsers \
     && chmod -R 755 /opt/ms-playwright-go

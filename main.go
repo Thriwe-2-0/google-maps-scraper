@@ -63,7 +63,7 @@ func main() {
 	cfg := runner.ParseConfig()
 	// cfg.KafkaConfig = kafkaConfig
 	// cfg.KafkaClient = kafkaClient
-	cfg.Databases.Discovery.URI = "postgresql://postgres:Z5Cq26NnxmUXGL3kAhcf4wPVSv9Q@stag-postgres-instance-1.cwtdhq8w4kce.ap-south-1.rds.amazonaws.com:5432/discovery"
+	cfg.Databases.Discovery.URI = "postgres://postgres:Z5Cq26NnxmUXGL3kAhcf4wPVSv9Q@stag-postgres-instance-1.cwtdhq8w4kce.ap-south-1.rds.amazonaws.com:5432/discovery"
 	cfg.MongoClient = mongoClient
 
 	runnerInstance, err := runnerFactory(cfg)

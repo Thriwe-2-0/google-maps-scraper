@@ -27,7 +27,6 @@ var mongoClient *mongo.Database
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-
 	runner.Banner()
 
 	sigChan := make(chan os.Signal, 1)
@@ -35,9 +34,7 @@ func main() {
 
 	go func() {
 		<-sigChan
-
 		log.Println("Received signal, shutting down...")
-
 		cancel()
 	}()
 
@@ -52,46 +49,34 @@ func main() {
 	)
 	defer logger.Sync()
 
-	//sugar := logger.Sugar()
-
-	// kafkaClient, err := runner.NewKafkaClient(kafkaConfig, sugar)
-	// if err != nil {
-	// 	cancel()
-	// 	sugar.Errorw("Failed to create Kafka client", "error", err)
-	// 	os.Exit(1)
-	// }
 	cfg := runner.ParseConfig()
-	// cfg.KafkaConfig = kafkaConfig
-	// cfg.KafkaClient = kafkaClient
-	cfg.Databases.Discovery.URI = "postgres://postgres:Z5Cq26NnxmUXGL3kAhcf4wPVSv9Q@stag-postgres-instance-1.cwtdhq8w4kce.ap-south-1.rds.amazonaws.com:5432/discovery"
+
+	sqlURI := os.Getenv("SQL_URI")
+	if sqlURI == "" {
+		log.Panic("Missing required environment variable: SQL_URI")
+	}
+	cfg.Databases.Discovery.URI = sqlURI
 	cfg.MongoClient = mongoClient
 
 	runnerInstance, err := runnerFactory(cfg)
 	if err != nil {
 		cancel()
 		os.Stderr.WriteString(err.Error() + "\n")
-
 		runner.Telemetry().Close()
-
 		os.Exit(1)
 	}
 
 	if err := runnerInstance.Run(ctx); err != nil {
 		os.Stderr.WriteString(err.Error() + "\n")
-
 		_ = runnerInstance.Close(ctx)
 		runner.Telemetry().Close()
-
 		cancel()
-
 		os.Exit(1)
 	}
 
 	_ = runnerInstance.Close(ctx)
 	runner.Telemetry().Close()
-
 	cancel()
-
 	os.Exit(0)
 }
 
@@ -115,47 +100,33 @@ func runnerFactory(cfg *runner.Config) (runner.Runner, error) {
 }
 
 func init() {
-	//Cfg := config.Init()
+	mongoURI := os.Getenv("MONGODB_URI")
+	if mongoURI == "" {
+		log.Panic("Missing required environment variable: MONGODB_URI")
+	}
 
-	// kafkaConfig = runner.KafkaConfig{
-	// 	Topics:                Cfg.KafkaConfig.Topics,
-	// 	Brokers:               Cfg.KafkaConfig.Brokers,
-	// 	Subjects:              Cfg.KafkaConfig.Subjects,
-	// 	SchemaRegistryUrl:     Cfg.KafkaConfig.SchemaRegistryUrl,
-	// 	SchemaRegistrySubject: Cfg.KafkaConfig.SchemaRegistrySubject,
-	// 	SASLUser:              Cfg.KafkaConfig.SASLUser,
-	// 	SASLPassword:          Cfg.KafkaConfig.SASLPassword,
-	// }
-	//databases = Cfg.Databases
-
-	db, err := NewMongoClient("mongodb://rashmi_read:hq0PySpkeQ8uz6uF@ac-ez0yja2-shard-00-00.6x4exst.mongodb.net:27017,ac-ez0yja2-shard-00-01.6x4exst.mongodb.net:27017,ac-ez0yja2-shard-00-02.6x4exst.mongodb.net:27017/?replicaSet=atlas-11b9tc-shard-0&ssl=true&authSource=admin","staging-auth")
+	db, err := NewMongoClient(mongoURI, "staging-auth")
 	if err != nil {
 		log.Panic("Failed to connect to MongoDB:", err)
 	}
 	mongoClient = db
-	return
 }
 
 func NewMongoClient(connectionURI, databaseName string) (*mongo.Database, error) {
-
-	// Set client options
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
-	client, errConnect := mongo.Connect(ctx, options.Client().ApplyURI(connectionURI))
-	if errConnect != nil {
-		log.Println(errConnect)
-		return nil, errConnect
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionURI))
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
 
-	// Check the connection
-	errPing := client.Ping(ctx, nil)
-	if errPing != nil {
-		log.Println("InitMongoClient-err", errPing)
-		return nil, errPing
+	if err := client.Ping(ctx, nil); err != nil {
+		log.Println("InitMongoClient-err", err)
+		return nil, err
 	}
-
-	db := client.Database(databaseName)
 
 	log.Println("Connected to MongoDB!")
-	return db, nil
+	return client.Database(databaseName), nil
 }

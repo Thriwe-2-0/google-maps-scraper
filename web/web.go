@@ -82,6 +82,14 @@ func New(svc *Service, addr string) (*Server, error) {
 			renderJSON(w, http.StatusMethodNotAllowed, ans)
 		}
 	})
+	// add /health endpoint for health check
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		ans := apiError{
+			Code:    http.StatusOK,
+			Message: "OK",
+		}
+		renderJSON(w, http.StatusOK, ans)
+	})
 
 	mux.HandleFunc("/api/v1/jobs/{id}", func(w http.ResponseWriter, r *http.Request) {
 		r = requestWithID(r)

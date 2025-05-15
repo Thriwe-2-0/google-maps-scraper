@@ -325,6 +325,12 @@ func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
 
 	reader := csv.NewReader(file)
 	log.Println("Reading CSV file:", reader.FieldsPerRecord)
+	reader.FieldsPerRecord = -1
+	records, err := reader.ReadAll()
+	log.Println("Reading CSV file:", records)
+	if err != nil {
+		return nil, err
+	}
 	headers, err := reader.Read()
 	if err != nil {
 		return nil, err

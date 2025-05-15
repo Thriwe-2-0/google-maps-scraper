@@ -3,7 +3,6 @@ package webrunner
 import (
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -376,19 +375,19 @@ func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
 		place.Reviews, _ = row["review_count"]
 		place.Latitude, _ = row["latitude"]
 		place.Longitude, _ = row["longitude"]
-		place.Verified = row["verified"] == "true"
+		//place.Verified = row["verified"] == "true"
 
 		// JSON fields
-		_ = json.Unmarshal([]byte(row["open_hours"]), &place.OpenHours)
-		_ = json.Unmarshal([]byte(row["popular_times"]), &place.PopularTimes)
-		_ = json.Unmarshal([]byte(row["images"]), &place.Images)
-		_ = json.Unmarshal([]byte(row["reservations"]), &place.Reservations)
-		_ = json.Unmarshal([]byte(row["order_online"]), &place.OrderOnline)
-		_ = json.Unmarshal([]byte(row["menu"]), &place.Menu)
-		_ = json.Unmarshal([]byte(row["owner"]), &place.Owner)
-		_ = json.Unmarshal([]byte(row["complete_address"]), &place.CompleteAddress)
-		_ = json.Unmarshal([]byte(row["about"]), &place.About)
-		_ = json.Unmarshal([]byte(row["user_reviews"]), &place.UserReviews)
+		// _ = json.Unmarshal([]byte(row["open_hours"]), &place.OpenHours)
+		// _ = json.Unmarshal([]byte(row["popular_times"]), &place.PopularTimes)
+		// _ = json.Unmarshal([]byte(row["images"]), &place.Images)
+		// _ = json.Unmarshal([]byte(row["reservations"]), &place.Reservations)
+		// _ = json.Unmarshal([]byte(row["order_online"]), &place.OrderOnline)
+		// _ = json.Unmarshal([]byte(row["menu"]), &place.Menu)
+		// _ = json.Unmarshal([]byte(row["owner"]), &place.Owner)
+		// _ = json.Unmarshal([]byte(row["complete_address"]), &place.CompleteAddress)
+		// _ = json.Unmarshal([]byte(row["about"]), &place.About)
+		// _ = json.Unmarshal([]byte(row["user_reviews"]), &place.UserReviews)
 
 		places = append(places, place)
 	}

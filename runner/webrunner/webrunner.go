@@ -245,7 +245,9 @@ func (w *webrunner) scrapeJob(ctx context.Context, job *web.Job) error {
 
 	places, err := ParseCSVToStructs(outpath)
 	if err != nil {
-		log.Fatalf("failed parsing csv: %v", err)
+		log.Printf("failed parsing csv: %v", err)
+		job.Status = web.StatusFailed
+		return w.svc.Update(ctx, job)
 	}
 
 	var updateRequest UpdateInput

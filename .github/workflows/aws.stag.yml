@@ -11,7 +11,7 @@ env:
   ECS_SERVICE: "stag-scraper-service1"
   ECS_CLUSTER: "stag-ecs-cluster"
   ECS_TASK_DEFINITION: ".aws/stag-task-definition.json"
-  CONTAINER_NAME: "stag-scraper-service1"
+  CONTAINER_NAME: "stag-scraper-service"
 
 permissions:
   contents: read

@@ -8,10 +8,10 @@ on:
 env:
   AWS_REGION: "ap-south-1"
   ECR_REPOSITORY: "scraper-service"
-  ECS_SERVICE: "stag-scraper-service"
+  ECS_SERVICE: "stag-scraper-service1"
   ECS_CLUSTER: "stag-ecs-cluster"
   ECS_TASK_DEFINITION: ".aws/stag-task-definition.json"
-  CONTAINER_NAME: "stag-scraper-service"
+  CONTAINER_NAME: "stag-scraper-service1"
 
 permissions:
   contents: read

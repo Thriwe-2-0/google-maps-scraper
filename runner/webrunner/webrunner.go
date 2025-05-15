@@ -10,7 +10,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -253,7 +252,7 @@ func (w *webrunner) scrapeJob(ctx context.Context, job *web.Job) error {
 	var updateRequest UpdateInput
 	updateRequest.ID = job.Data.FacilityId
 	updateRequest.NewRating = places[0].Rating
-	updateRequest.NewReviewCnt = int64(places[0].Reviews)
+	updateRequest.NewReviewCnt = places[0].Reviews
 	err = UpdateRatingsAndReviews(ctx, updateRequest, *w.cfg.MongoClient)
 	if err != nil {
 		log.Printf("failed updating ratings and reviews: %v", err)
@@ -341,6 +340,7 @@ func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
+			log.Println("inside for loop", err)
 			break
 		}
 		if err != nil {
@@ -372,10 +372,10 @@ func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
 		place.Emails = row["emails"]
 
 		// Parse floats and ints
-		place.Rating, _ = strconv.ParseFloat(row["review_rating"], 64)
-		place.Reviews, _ = strconv.Atoi(row["review_count"])
-		place.Latitude, _ = strconv.ParseFloat(row["latitude"], 64)
-		place.Longitude, _ = strconv.ParseFloat(row["longitude"], 64)
+		place.Rating, _ = row["review_rating"]
+		place.Reviews, _ = row["review_count"]
+		place.Latitude, _ = row["latitude"]
+		place.Longitude, _ = row["longitude"]
 		place.Verified = row["verified"] == "true"
 
 		// JSON fields
@@ -407,10 +407,10 @@ type PlaceData struct {
 	Website         string                    `json:"website"`
 	Phone           string                    `json:"phone"`
 	PlusCode        string                    `json:"plus_code"`
-	Rating          float64                   `json:"rating"`
-	Reviews         int                       `json:"reviews"`
-	Latitude        float64                   `json:"latitude"`
-	Longitude       float64                   `json:"longitude"`
+	Rating          string                    `json:"rating"`
+	Reviews         string                    `json:"reviews"`
+	Latitude        string                    `json:"latitude"`
+	Longitude       string                    `json:"longitude"`
 	OwnerID         string                    `json:"owner_id"`
 	Verified        bool                      `json:"verified"`
 	ReviewSummary   string                    `json:"review_summary"`

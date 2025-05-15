@@ -11,8 +11,8 @@ import (
 
 type UpdateInput struct {
 	ID           string
-	NewRating    float64
-	NewReviewCnt int64
+	NewRating    string
+	NewReviewCnt string
 }
 
 func UpdateRatingsAndReviews(ctx context.Context, input UpdateInput, mongoDb mongo.Database) error {
@@ -22,7 +22,7 @@ func UpdateRatingsAndReviews(ctx context.Context, input UpdateInput, mongoDb mon
 		"$set": bson.M{
 			"ratings":     input.NewRating,
 			"noOfReviews": input.NewReviewCnt,
-			"updatedAt":   time.Now(),
+			"_updated_at":   time.Now(),
 		},
 	}
 

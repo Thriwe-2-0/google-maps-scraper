@@ -314,6 +314,7 @@ func (w *webrunner) setupMate(_ context.Context, writer io.Writer, job *web.Job)
 }
 
 func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
+	log.Println("Parsing CSV file:", filePath)
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -321,6 +322,7 @@ func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
 	defer file.Close()
 
 	reader := csv.NewReader(file)
+	log.Println("Reading CSV file:", reader.FieldsPerRecord)
 	headers, err := reader.Read()
 	if err != nil {
 		return nil, err

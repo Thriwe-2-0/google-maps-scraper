@@ -313,87 +313,83 @@ func (w *webrunner) setupMate(_ context.Context, writer io.Writer, job *web.Job)
 	return scrapemateapp.NewScrapeMateApp(matecfg)
 }
 
-func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
-	log.Println("Parsing CSV file:", filePath)
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+// func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
+// 	log.Println("Parsing CSV file:", filePath)
+// 	file, err := os.Open(filePath)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer file.Close()
 
-	reader := csv.NewReader(file)
-	log.Println("Reading CSV file:", reader.FieldsPerRecord)
-	reader.FieldsPerRecord = -1
-	records, err := reader.ReadAll()
-	log.Println("Reading CSV file:", records)
-	if err != nil {
-		return nil, err
-	}
-	headers, err := reader.Read()
-	if err != nil {
-		return nil, err
-	}
+// 	reader := csv.NewReader(file)
+// 	log.Println("Reading CSV file:", reader.FieldsPerRecord)
+// 	reader.FieldsPerRecord = -1
 
-	var places []PlaceData
+// 	headers, err := reader.Read()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	for {
-		record, err := reader.Read()
-		if err == io.EOF {
-			log.Println("inside for loop", err)
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
+// 	var places []PlaceData
 
-		row := make(map[string]string)
-		for i, value := range record {
-			row[headers[i]] = value
-		}
+// 	for {
+// 		record, err := reader.Read()
+// 		if err == io.EOF {
+// 			log.Println("inside for loop", err)
+// 			break
+// 		}
+// 		if err != nil {
+// 			return nil, err
+// 		}
 
-		var place PlaceData
+// 		row := make(map[string]string)
+// 		for i, value := range record {
+// 			row[headers[i]] = value
+// 		}
 
-		// Direct string assignments
-		place.InputID = row["input_id"]
-		place.Link = row["link"]
-		place.Title = row["title"]
-		place.Category = row["category"]
-		place.Address = row["address"]
-		place.Website = row["website"]
-		place.Phone = row["phone"]
-		place.PlusCode = row["plus_code"]
-		place.OwnerID = row["owner_id"]
-		place.ReviewSummary = row["review_summary"]
-		place.WorkingHoursOld = row["working_hours_old"]
-		place.Status = row["status"]
-		place.UpdatedAt = row["updated_at"]
-		place.DataID = row["data_id"]
-		place.Emails = row["emails"]
+// 		var place PlaceData
 
-		// Parse floats and ints
-		place.Rating, _ = row["review_rating"]
-		place.Reviews, _ = row["review_count"]
-		place.Latitude, _ = row["latitude"]
-		place.Longitude, _ = row["longitude"]
-		//place.Verified = row["verified"] == "true"
+// 		// Direct string assignments
+// 		place.InputID = row["input_id"]
+// 		place.Link = row["link"]
+// 		place.Title = row["title"]
+// 		place.Category = row["category"]
+// 		place.Address = row["address"]
+// 		place.Website = row["website"]
+// 		place.Phone = row["phone"]
+// 		place.PlusCode = row["plus_code"]
+// 		place.OwnerID = row["owner_id"]
+// 		place.ReviewSummary = row["review_summary"]
+// 		place.WorkingHoursOld = row["working_hours_old"]
+// 		place.Status = row["status"]
+// 		place.UpdatedAt = row["updated_at"]
+// 		place.DataID = row["data_id"]
+// 		place.Emails = row["emails"]
 
-		// JSON fields
-		// _ = json.Unmarshal([]byte(row["open_hours"]), &place.OpenHours)
-		// _ = json.Unmarshal([]byte(row["popular_times"]), &place.PopularTimes)
-		// _ = json.Unmarshal([]byte(row["images"]), &place.Images)
-		// _ = json.Unmarshal([]byte(row["reservations"]), &place.Reservations)
-		// _ = json.Unmarshal([]byte(row["order_online"]), &place.OrderOnline)
-		// _ = json.Unmarshal([]byte(row["menu"]), &place.Menu)
-		// _ = json.Unmarshal([]byte(row["owner"]), &place.Owner)
-		// _ = json.Unmarshal([]byte(row["complete_address"]), &place.CompleteAddress)
-		// _ = json.Unmarshal([]byte(row["about"]), &place.About)
-		// _ = json.Unmarshal([]byte(row["user_reviews"]), &place.UserReviews)
+// 		// Parse floats and ints
+// 		place.Rating = row["review_rating"]
+// 		place.Reviews = row["review_count"]
+// 		place.Latitude = row["latitude"]
+// 		place.Longitude= row["longitude"]
+// 		//place.Verified = row["verified"] == "true"
 
-		places = append(places, place)
-	}
+// 		// JSON fields
+// 		// _ = json.Unmarshal([]byte(row["open_hours"]), &place.OpenHours)
+// 		// _ = json.Unmarshal([]byte(row["popular_times"]), &place.PopularTimes)
+// 		// _ = json.Unmarshal([]byte(row["images"]), &place.Images)
+// 		// _ = json.Unmarshal([]byte(row["reservations"]), &place.Reservations)
+// 		// _ = json.Unmarshal([]byte(row["order_online"]), &place.OrderOnline)
+// 		// _ = json.Unmarshal([]byte(row["menu"]), &place.Menu)
+// 		// _ = json.Unmarshal([]byte(row["owner"]), &place.Owner)
+// 		// _ = json.Unmarshal([]byte(row["complete_address"]), &place.CompleteAddress)
+// 		// _ = json.Unmarshal([]byte(row["about"]), &place.About)
+// 		// _ = json.Unmarshal([]byte(row["user_reviews"]), &place.UserReviews)
 
-	return places, nil
-}
+// 		places = append(places, place)
+// 	}
+
+// 	return places, nil
+// }
 
 type PlaceData struct {
 	InputID         string                    `json:"input_id"`
@@ -470,4 +466,71 @@ type UserReview struct {
 	ProfilePicture string `json:"ProfilePicture"`
 	Review         string `json:"Review"`
 	Rating         int    `json:"Rating"`
+}
+
+func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
+	log.Println("Parsing CSV file:", filePath)
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	reader.FieldsPerRecord = -1 // Allow variable number of fields
+
+	// Read the header
+	headers, err := reader.Read()
+	if err != nil {
+		return nil, err
+	}
+
+	var places []PlaceData
+
+	for {
+		log.Println("inside for loop")
+		record, err := reader.Read()
+		if err == io.EOF {
+			log.Println("EOF reached, breaking the loop")
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		row := make(map[string]string)
+		for i, value := range record {
+			if i < len(headers) {
+				row[headers[i]] = value
+			}
+		}
+
+		var place PlaceData
+
+		place.InputID = row["input_id"]
+		place.Link = row["link"]
+		place.Title = row["title"]
+		place.Category = row["category"]
+		place.Address = row["address"]
+		place.Website = row["website"]
+		place.Phone = row["phone"]
+		place.PlusCode = row["plus_code"]
+		place.OwnerID = row["owner_id"]
+		place.ReviewSummary = row["review_summary"]
+		place.WorkingHoursOld = row["working_hours_old"]
+		place.Status = row["status"]
+		place.UpdatedAt = row["updated_at"]
+		place.DataID = row["data_id"]
+		place.Emails = row["emails"]
+		place.Rating = row["review_rating"]
+		place.Reviews = row["review_count"]
+		place.Latitude = row["latitude"]
+		place.Longitude = row["longitude"]
+
+		// Optional: add parsing logic for numbers and JSON fields if needed
+		log.Println("Parsed place:", place)
+		places = append(places, place)
+	}
+
+	return places, nil
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/spf13/cast"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -20,9 +21,9 @@ func UpdateRatingsAndReviews(ctx context.Context, input UpdateInput, mongoDb mon
 
 	update := bson.M{
 		"$set": bson.M{
-			"ratings":     input.NewRating,
+			"ratings":     cast.ToFloat64(input.NewRating),
 			"noOfReviews": input.NewReviewCnt,
-			"_updated_at":   time.Now(),
+			"_updated_at": time.Now(),
 		},
 	}
 

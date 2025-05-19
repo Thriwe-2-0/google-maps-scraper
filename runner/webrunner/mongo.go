@@ -22,8 +22,8 @@ func UpdateRatingsAndReviews(ctx context.Context, input UpdateInput, mongoDb mon
 	update := bson.M{
 		"$set": bson.M{
 			"ratings":     cast.ToFloat64(input.NewRating),
-			"noOfReviews": input.NewReviewCnt,
-			"_updated_at": time.Now(),
+			"noOfReviews": cast.ToInt64(input.NewReviewCnt),
+			"updatedAt":   time.Now(),
 		},
 	}
 

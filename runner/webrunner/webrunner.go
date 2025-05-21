@@ -486,32 +486,45 @@ func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
 	log.Println("Parsing CSV file:", filePath)
 	file, err := os.Open(filePath)
 	if err != nil {
+		log.Printf("Error opening file: %v", err)
 		return nil, err
 	}
 	defer file.Close()
 
 	reader := csv.NewReader(file)
 	reader.FieldsPerRecord = -1 // Allow variable number of fields
+	reader.LazyQuotes = true    // Allow improperly quoted fields
 
 	// Read the header
 	headers, err := reader.Read()
 	if err != nil {
+		log.Printf("Error reading header: %v", err)
 		return nil, err
 	}
+	log.Printf("CSV Headers: %v", headers)
 
 	var places []PlaceData
+	lineNum := 2 // Start from 2 since header is line 1
 
 	for {
-		log.Println("inside for loop")
 		record, err := reader.Read()
 		if err == io.EOF {
 			log.Println("EOF reached, breaking the loop")
 			break
 		}
 		if err != nil {
+			log.Printf("Error reading line %d: %v", lineNum, err)
 			return nil, err
 		}
 
+		// Skip empty rows
+		if len(record) == 0 {
+			log.Printf("Skipping empty line at %d", lineNum)
+			lineNum++
+			continue
+		}
+
+		// Create a map from headers to values
 		row := make(map[string]string)
 		for i, value := range record {
 			if i < len(headers) {
@@ -520,7 +533,6 @@ func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
 		}
 
 		var place PlaceData
-
 		place.InputID = row["input_id"]
 		place.Link = row["link"]
 		place.Title = row["title"]
@@ -541,10 +553,11 @@ func ParseCSVToStructs(filePath string) ([]PlaceData, error) {
 		place.Latitude = row["latitude"]
 		place.Longitude = row["longitude"]
 
-		// Optional: add parsing logic for numbers and JSON fields if needed
-		log.Println("Parsed place:", place)
+		log.Printf("Parsed line %d: %+v", lineNum, place)
 		places = append(places, place)
+		lineNum++
 	}
 
 	return places, nil
 }
+

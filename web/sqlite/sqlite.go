@@ -215,3 +215,17 @@ func createSchema(db *sql.DB) error {
 
 	return err
 }
+
+func (repo *repo) UpdateRatingAndReview(ctx context.Context, ratings float64, reviewCount int64, id string) error {
+	//update the service_configs table set rating and review_count
+	const q = `
+		UPDATE service_configs
+		SET rating = $1
+		WHERE facility_id = $2
+	`
+	_, err := repo.db.ExecContext(ctx, q, ratings, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

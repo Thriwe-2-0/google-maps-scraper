@@ -21,6 +21,7 @@ import (
 	"github.com/gosom/scrapemate"
 	"github.com/gosom/scrapemate/adapters/writers/csvwriter"
 	"github.com/gosom/scrapemate/scrapemateapp"
+	"github.com/spf13/cast"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -239,11 +240,15 @@ func (w *webrunner) scrapeJob(ctx context.Context, job *web.Job) error {
 
 	mate.Close()
 
-	job.Status = web.StatusOK
-
 	places, err := ParseCSVToStructs(outpath)
 	if err != nil {
 		log.Printf("failed parsing csv: %v", err)
+		job.Status = web.StatusFailed
+		return w.svc.Update(ctx, job)
+	}
+
+	if len(places) == 0 {
+		log.Printf("no places found for job %s", job.Data.Keywords)
 		job.Status = web.StatusFailed
 		return w.svc.Update(ctx, job)
 	}
@@ -256,7 +261,16 @@ func (w *webrunner) scrapeJob(ctx context.Context, job *web.Job) error {
 	if err != nil {
 		log.Printf("failed updating ratings and reviews: %v", err)
 		job.Status = web.StatusFailed
+		return w.svc.Update(ctx, job)
 	}
+	err = w.svc.UpdateRatingAndReview(ctx,cast.ToFloat64(places[0].Rating), cast.ToInt64(places[0].Reviews), job.Data.FacilityId)
+	if err != nil {
+		log.Printf("failed updating ratings and reviews: %v", err)
+		job.Status = web.StatusFailed
+		return w.svc.Update(ctx, job)
+	}
+
+	job.Status = web.StatusOK
 
 	return w.svc.Update(ctx, job)
 }

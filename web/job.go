@@ -26,10 +26,11 @@ type JobRepository interface {
 	Delete(context.Context, string) error
 	Select(context.Context, SelectParams) ([]Job, error)
 	Update(context.Context, *Job) error
+	UpdateRatingAndReview(context.Context, float64, int64, string) error
 }
 
 type Job struct {
-	ID string
+	ID     string
 	Name   string
 	Date   time.Time
 	Status string
